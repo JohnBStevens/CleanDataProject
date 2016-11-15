@@ -9,6 +9,7 @@
 library(plyr)
 library(dplyr)
 library(reshape2)
+library(utils)
 
 #set constants 
 zipurl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
@@ -85,15 +86,17 @@ rm(testobs,trainobs,ytest,ytrain,testsubject,trainsubject,activity,ytest2,ytrain
 
 #create dataset with average of each variable for each activity and each subject
 
-#melt the dataset
-meltedobs <-melt(allobs,id=c("subject","activity"),measure.vars=measurevars)
-
 #get the number of measurement columns (total number minus the two factor columns Activity & Subject)
 measures <- length(names(allobs))-2
 #get a vector of measurement columns
 measurevars <- names(allobs[1:measures])
+
+#melt the dataset
+meltedobs <-melt(allobs,id=c("subject","activity"),measure.vars=measurevars)
+
 #use dcast to create a crosstab
 meanobs<-dcast(meltedobs,subject~activity,mean)
 
 #write the outputs to CSV files
 write.csv(meanobs,file="..\\meansbydcast.csv",na="",quote=FALSE,row.names = FALSE)
+write.table(meanobs,file="..\\meansbydcast.txt",na="",quote=FALSE, sep=" ",row.names=FALSE)
