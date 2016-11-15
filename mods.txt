@@ -1,0 +1,5 @@
+library(plyr)
+library(dplyr)
+library(reshape2)
+ytest2 <- join(ytest, activity, by = "id")
+ytrain2 <- join(ytrain, activity, by = "id")

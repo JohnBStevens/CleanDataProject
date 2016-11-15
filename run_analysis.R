@@ -6,6 +6,10 @@
 # 4) Appropriately label the data set with descriptive variable names.
 # 5) From the data set in step 4, create a second, independent tidy data set with the average of each variable for each activity and each subject.
 
+library(plyr)
+library(dplyr)
+library(reshape2)
+
 #set constants 
 zipurl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 ziplocal <- "dataset.zip"
@@ -65,8 +69,8 @@ ytrain<-read.delim("train/y_train.txt",head=FALSE,col.names = "id")
 
 #Use descriptive activity names to name the activities in the data set
 activity <- read.delim("activity_labels.txt", head=FALSE,col.names=c("id","name"),sep=" ")
-ytest2 <- merge(ytest,activity)
-ytrain2 <- merge(ytrain,activity)
+ytest2 <- join(ytest, activity, by = "id")
+ytrain2 <- join(ytrain, activity, by = "id")
 
 #Add y & subject columns to observation data
 testobs["subject"] <- testsubject
@@ -84,11 +88,6 @@ rm(testobs,trainobs,ytest,ytrain,testsubject,trainsubject,activity,ytest2,ytrain
 #melt the dataset
 meltedobs <-melt(allobs,id=c("subject","activity"),measure.vars=measurevars)
 
-#Method #1: group & summarize (creates a list)
-grouped<-group_by(meltedobs,subject,activity)
-avgobs<-summarise(grouped, mean=mean(value))
-
-#Method #2: dcast (creates a crosstab table)
 #get the number of measurement columns (total number minus the two factor columns Activity & Subject)
 measures <- length(names(allobs))-2
 #get a vector of measurement columns
