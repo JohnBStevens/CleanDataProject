@@ -96,5 +96,4 @@ measurevars <- names(allobs[1:measures])
 meanobs<-dcast(meltedobs,subject~activity,mean)
 
 #write the outputs to CSV files
-write.csv(meanobs,file="meansbydcast.csv",na="",quote=FALSE,row.names = FALSE)
-write.csv(avgobs,file="meansbygroup.csv",na="",quote=FALSE,row.names = FALSE)
+write.csv(meanobs,file="..\\meansbydcast.csv",na="",quote=FALSE,row.names = FALSE)

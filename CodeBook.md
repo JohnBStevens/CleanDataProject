@@ -15,13 +15,10 @@ The data is a set of 3-axial linear acceleration and 3-axial angular velocity me
 5. A new dataframe is created using the features vector to decide which columns to include.
 6. Subject and Activity data are added to the dataframe.
 7. Test & Training datasets are merged together.
-8. After melting the dataset, two methods are used to get the mean of observations by subject and activity:
-*grouping & summarizing produces a list of results (results in: meansbygroup.csv)
-*dcast creates a crosstab (results in: meansbydcast.csv)
+8. After melting the dataset, dcast creates a crosstab (results in: meansbydcast.csv)
 
-#Summaries Calculated
-
-##Complete Variable List (in order of appearance in script)
+##Summaries Calculated
+###Complete Variable List (in order of appearance in script)
 *zipurl: character constant indicating the URL for the original zip data file
 *ziplocal: character constant designating the local name of the zip file
 *subDir: character constant designating the subdirectory created when unzipping the zip file
