@@ -19,4 +19,4 @@ This script downloads, cleans and reshapes data collected during a test of accel
 1. Place the run_analysis.R file in a working directory
 2. Set the R environment working directory to the working directory
 3. Type source("../run_analysis.R") <enter> to run the code
-4. The output data file (meansbyDCast.csv) will be placed in the original working directory
+4. The output data file (tidy_data_set.txt) will be placed in the original working directory
