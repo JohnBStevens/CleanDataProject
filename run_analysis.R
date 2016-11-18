@@ -35,8 +35,6 @@ cleanfeatures<-gsub("\\(","",features)
 cleanfeatures<-gsub("\\)","",cleanfeatures)
 cleanfeatures<-gsub("-","_",cleanfeatures)
 
-rm(features)
-
 #Read in the X data as text
 xtest <- readLines(con="test/X_test.txt")
 xtrain <- readLines(con="train/X_train.txt")
@@ -51,52 +49,36 @@ xtrain <- gsub("  "," ",xtrain)
 xtestdf <- read.delim(text = xtest, sep = " ", colClasses = "numeric", header=FALSE, col.names = cleanfeatures)
 xtraindf <- read.delim(text = xtrain, sep = " ", colClasses = "numeric", header=FALSE, col.names = cleanfeatures)
 
-rm(xtest,xtrain)
-
 #Strip out the unneeded columns from X
 #the regular expression "mean[^\(]" will find instances of mean followed by something other than an open parentheses
-testobs <- xtestdf[,grep("std()|mean()",cleanfeatures)]
-trainobs <- xtraindf[,grep("std()|mean()",cleanfeatures)]
-
-rm(xtestdf,xtraindf)
+testobs <- xtestdf[,grep("std|mean",cleanfeatures)]
+trainobs <- xtraindf[,grep("std|mean",cleanfeatures)]
 
 #Read in the subject data
-testsubject <- read.delim("test/subject_test.txt", head=FALSE)
-trainsubject <- read.delim("train/subject_train.txt",head=FALSE)
+testsubject <- read.delim("test/subject_test.txt", head=FALSE,col.names="subject")
+trainsubject <- read.delim("train/subject_train.txt",head=FALSE,col.names="subject")
 
 #Read in the y (activity) data
-ytest<-read.delim("test/y_test.txt",head=FALSE,col.names = "id")
-ytrain<-read.delim("train/y_train.txt",head=FALSE,col.names = "id")
+ytest<-read.delim("test/y_test.txt",head=FALSE,col.names = "activityid")
+ytrain<-read.delim("train/y_train.txt",head=FALSE,col.names = "activityid")
 
 #Use descriptive activity names to name the activities in the data set
-activity <- read.delim("activity_labels.txt", head=FALSE,col.names=c("id","name"),sep=" ")
-ytest2 <- join(ytest, activity, by = "id")
-ytrain2 <- join(ytrain, activity, by = "id")
+activity <- read.delim("activity_labels.txt", head=FALSE,col.names=c("activityid","activity"),sep=" ")
+ytest2 <- join(ytest, activity, by = "activityid")
+ytrain2 <- join(ytrain, activity, by = "activityid")
 
 #Add y & subject columns to observation data
-testobs["subject"] <- testsubject
-testobs["activity"] <- ytest2$name
-trainobs["subject"] <- trainsubject
-trainobs["activity"] <- ytrain2$name
+testobs.factors <- cbind(testsubject,ytest2)
+trainobs.factors <- cbind(trainsubject,ytrain2)
+testobs.complete <- cbind(testobs.factors, testobs)
+trainobs.complete <- cbind(trainobs.factors, trainobs)
 
 #merge the test & train datasets
-allobs <- merge.data.frame(testobs,trainobs,all=TRUE,sort=FALSE)
-
-rm(testobs,trainobs,ytest,ytrain,testsubject,trainsubject,activity,ytest2,ytrain2)
+allobs <- merge.data.frame(testobs.complete,trainobs.complete,all=TRUE,sort=FALSE)
+allobs$subject <- as.factor(allobs$subject)
 
 #create dataset with average of each variable for each activity and each subject
-
-#get the number of measurement columns (total number minus the two factor columns Activity & Subject)
-measures <- length(names(allobs))-2
-#get a vector of measurement columns
-measurevars <- names(allobs[1:measures])
-
-#melt the dataset
-meltedobs <-melt(allobs,id=c("subject","activity"),measure.vars=measurevars)
-
-#use dcast to create a crosstab
-meanobs<-dcast(meltedobs,subject~activity,mean)
+meanobs<-aggregate(. ~subject + activity, allobs, mean)
 
 #write the outputs to CSV files
-write.csv(meanobs,file="..\\meansbydcast.csv",na="",quote=FALSE,row.names = FALSE)
-write.table(meanobs,file="..\\meansbydcast.txt",na="",quote=FALSE, sep=" ",row.names=FALSE)
+write.table(meanobs,file="..\\tidy_data_set.txt",na="",quote=FALSE,row.names = FALSE)
